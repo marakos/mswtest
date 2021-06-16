@@ -1,25 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const Home = ({ users = [] }) => {
+  const [user, setUser] = useState([]);
+  useEffect(() => {
+    async function fetchMyAPI() {
+      let response = await fetch("http://localhost:3000/users");
+      response = await response.json();
+      setUser(response);
+    }
+    fetchMyAPI();
+  }, []);
+  const usersNode = () => {
+    if (!user.length) {
+      return <>No users found</>;
+    }
+
+    return (
+      <>
+        {user.map((user) => {
+          return (
+            <div key={user.id}>
+              {user.first_name} {user.last_name}
+            </div>
+          );
+        })}
+      </>
+    );
+  };
+
+  return usersNode();
+};
+
+export async function getServerSideProps() {
+  const response = await fetch("http://localhost:3000/users");
+  const users = await response.json();
+
+  return {
+    props: {
+      users,
+    },
+  };
 }
 
-export default App;
+export default Home;
